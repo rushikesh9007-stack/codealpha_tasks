@@ -1,0 +1,120 @@
+
+#include <iostream>
+using namespace std;
+
+class Node
+{
+public:
+    char data;
+    Node *next;
+};
+
+class Stack
+{
+    Node *top;
+
+public:
+    Stack()
+    {
+        top = NULL;
+    }
+
+    void push(char x)
+    {
+        Node *newnode = new Node;
+        newnode->data = x;
+        newnode->next = top;
+        top = newnode;
+    }
+
+    char pop()
+    {
+        if (top == NULL)
+            return '\0';
+
+        Node *temp = top;
+        char x = temp->data;
+        top = top->next;
+        delete temp;
+        return x;
+    }
+
+    char peek()
+    {
+        if (top == NULL)
+            return '\0';
+
+        return top->data;
+    }
+
+    int isEmpty()
+    {
+        return top == NULL;
+    }
+};
+
+int precedence(char op)
+{
+    if (op == '^')
+        return 3;
+    if (op == '*' || op == '/')
+        return 2;
+    if (op == '+' || op == '-')
+        return 1;
+    return 0;
+}
+
+int main()
+{
+    Stack s;
+    char infix[100], postfix[100];
+    int j = 0;
+
+    cout << "Enter Infix Expression: ";
+    cin >> infix;
+
+    for (int i = 0; infix[i] != '\0'; i++)
+    {
+        char ch = infix[i];
+
+        if ((ch >= 'A' && ch <= 'Z') ||
+            (ch >= 'a' && ch <= 'z') ||
+            (ch >= '0' && ch <= '9'))
+        {
+            postfix[j++] = ch;
+        }
+        else if (ch == '(')
+        {
+            s.push(ch);
+        }
+        else if (ch == ')')
+        {
+            while (!s.isEmpty() && s.peek() != '(')
+            {
+                postfix[j++] = s.pop();
+            }
+            if (!s.isEmpty())
+                s.pop();
+        }
+        else
+        {
+            while (!s.isEmpty() && s.peek() != '(' &&
+                   precedence(s.peek()) >= precedence(ch))
+            {
+                postfix[j++] = s.pop();
+            }
+            s.push(ch);
+        }
+    }
+
+    while (!s.isEmpty())
+    {
+        postfix[j++] = s.pop();
+    }
+
+    postfix[j] = '\0';
+
+    cout << "Postfix Expression: " << postfix;
+
+    return 0;
+}
